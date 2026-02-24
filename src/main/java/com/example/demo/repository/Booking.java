@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -21,6 +22,7 @@ public class Booking {
     @NotNull(message = "Client is mandatory.")
     private Client client;
     @NotNull(message = "Start time is mandatory;")
+    @Future(message = "Registration can't be in past.")
     private LocalDateTime start;
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Status is mandatory.")
