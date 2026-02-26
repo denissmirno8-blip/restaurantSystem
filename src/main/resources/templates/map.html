@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="et">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tables</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script defer src="/js/main.js"></script>
+</head>
+
+<body>
+
+<div class="conteiner registration">
+    <h2>Vali laua</h2>
+    <br>
+    <label for="area_select">Tsoon</label>
+    <br>
+    <select name="area" id="area_select" class="filter">
+    </select>
+    <br>
+    <fieldset name="preference" class="preferences">
+        <legend>Eelistus</legend>
+    </fieldset>
+    <br>
+    <form action="/api/booking/book" method="POST">
+        <div class="restaurant-grid">
+
+        </div>
+    </form>
+    <br>
+    <label for="name">Ees- ja perekonnanimi</label>
+    <br>
+    <input type="text" id="name" class="registration">
+    <br>
+    <label for="phonenumber">Telefoni number</label>
+    <br>
+    <input type="text" id="phonenumber" class="registration">
+    <br>
+    <button type="submit">Registreeri</button>
+</div>
+</body>
+
+</html>

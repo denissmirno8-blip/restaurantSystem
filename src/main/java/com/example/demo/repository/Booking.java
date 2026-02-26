@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import java.time.LocalDateTime;
+import java.lang.String;
 
 @Entity
 public class Booking {
@@ -19,21 +19,20 @@ public class Booking {
     private RestaurantTable restaurantTable;
     @ManyToOne
     @JoinColumn(name = "client_id")
-    @NotNull(message = "Client is mandatory.")
     private Client client;
-    @NotNull(message = "Start time is mandatory;")
-    @Future(message = "Registration can't be in past.")
-    private LocalDateTime start;
-    @Enumerated(EnumType.STRING)
-    @NotNull(message = "Status is mandatory.")
-    private BookingStatus status;
+    @NotNull(message = "date is mandatory;")
+    private String date;
+    @NotBlank(message = "Time is mandatory.")
+    private String time;
+    private boolean tableIsFree;
 
-    public Booking(BookingStatus status, LocalDateTime start, Client client, RestaurantTable restaurantTable, Long id) {
-        this.status = status;
-        this.start = start;
+    public Booking(String time, String date, Client client, RestaurantTable restaurantTable, Long id) {
+        this.date = date;
         this.client = client;
+        this.time = time;
         this.restaurantTable = restaurantTable;
         this.id = id;
+        this.tableIsFree = (this.client == null);
     }
     public Booking(){}
 
@@ -45,21 +44,6 @@ public class Booking {
         this.id = id;
     }
 
-    public LocalDateTime getStart() {
-        return start;
-    }
-
-    public void setStart(LocalDateTime start) {
-        this.start = start;
-    }
-
-    public BookingStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(BookingStatus status) {
-        this.status = status;
-    }
 
     public Client getClient() {
         return client;
@@ -77,5 +61,23 @@ public class Booking {
         this.restaurantTable = restaurantTable;
     }
 
+    public String getDate() {
+        return date;
+    }
 
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public boolean isTableFree() {
+        return tableIsFree;
+    }
 }

@@ -13,63 +13,23 @@
 
 <div class="conteiner">
     <h2>Laua registreerimine</h2>
-    <label for="date">Pange kuupäeva</label>
-    <br>
-    <input type="date" id="date" class="filter">
-    <br>
-    <label for="time">Aeg</label>
-    <br>
-    <!-- add select option of time -->
-    <input type="time" id="time" class="filter">
-    <br>
-    <label for="table_size">Inimeste arv</label>
-    <br>
-    <input type="number" id="table_size" class="filter" min="1" , step="1" , value="1">
-    <br>
-    <label for="zone_select">Tsoon</label>
-    <br>
-    <select name="zone" id="zone_select" class="filter">
-        <option value="1">VIP Zone</option>
-        <option value="2">Main Hall</option>
-        <option value="3">Terrace</option>
-        <option value="4">Bar Area</option>
-        <option value="5">Garden</option>
-    </select>
-    <br>
-    <fieldset>
-        <legend>Eelistus</legend>
-        <div>
-            <input type="checkbox" id="window" class="filter">
-            <label for="window">Window seat</label>
-        </div>
 
-        <div>
-            <input type="checkbox" id="quiet" class="filter">
-            <label for="quiet">Quiet area</label>
-        </div>
-        <div>
-            <input type="checkbox" id="high" class="filter">
-            <label for="high">High table</label>
-        </div>
-        <div>
-            <input type="checkbox" id="near" class="filter">
-            <label for="near">Near the entrance</label>
-        </div>
-        <div>
-            <input type="checkbox" id="outdoor" class="filter">
-            <label for="outdoor">Outdoor seating</label>
-        </div>
-    </fieldset>
-    <br>
-    <label for="name">Ees- ja perekonnanimi</label>
-    <br>
-    <input type="text" id="name" class="filter">
-    <br>
-    <label for="phonenumber">Telefoni number</label>
-    <br>
-    <input type="text" id="phonenumber" class="filter">
-    <br>
-
+    <form action="/api/booking/map" method="GET">
+        <label for="date">Pange kuupäeva*</label>
+        <br>
+        <input type="date" name="date" id="date" class="filter">
+        <br>
+        <label for="time">Aeg*</label>
+        <br>
+        <select name="time" id="time" class="filter">
+        </select>
+        <br>
+        <label for="table_size">Inimeste arv*</label>
+        <br>
+        <input type="number" name="size" id="table_size" class="filter" min="1" , max="6" , step="1" , value="1">
+        <br>
+        <button type="submit">Otsi lauad</button>
+    </form>
 </div>
 </body>
 

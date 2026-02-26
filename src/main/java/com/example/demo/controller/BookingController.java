@@ -1,16 +1,19 @@
 package com.example.demo.controller;
 
+import com.example.demo.repository.Area;
 import com.example.demo.repository.Booking;
+import com.example.demo.repository.RestaurantTable;
 import com.example.demo.service.BookingService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.awt.print.Book;
 import java.util.List;
 
-@RestController
+@Controller
 @RequestMapping(path = "/api/booking")
 public class BookingController {
 
@@ -25,19 +28,41 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.findAll());
     }
 
+    /*@GetMapping(path = "/map")
+    public ResponseEntity<List<Long>> getTablesForBooking(@RequestParam String date, @RequestParam String time, @RequestParam Integer size, @RequestParam String area, @RequestParam(required = false) List<String> preferences) {
+
+        return ResponseEntity.ok(bookingService.findTablesForBooking(date, time, size, area, preferences));
+    }*/
+    @GetMapping(path = "/map")
+    public String getTablesForBooking(@RequestParam String date, @RequestParam String time, @RequestParam Integer size, @RequestParam(required = false) String area, @RequestParam(required = false) List<String> preferences) {
+
+        return "map";
+    }
+
+
+
+    //@GetMapping(path = "get free time for tables")
+    @GetMapping(path = "times")
+    public ResponseEntity<List<String>> getBookingTime(){
+        return ResponseEntity.ok(bookingService.findTime());
+    }
+
     @PostMapping
     public ResponseEntity<Booking> create(@Valid @RequestBody Booking booking){
         return ResponseEntity.status(HttpStatus.CREATED).body(bookingService.create(booking));
     }
 
-    @DeleteMapping(path = "{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id){
-        bookingService.delete(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    @PostMapping(path="all")
+    public ResponseEntity<String> createMultiple(@Valid @RequestBody List<Booking> bookings) {
+        for (Booking booking : bookings) {
+            bookingService.create(booking);
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED).body("All bookings are created.");
     }
 
-    @PatchMapping(path = "{id}")
-    public ResponseEntity<Booking> update(@PathVariable Long id, @RequestBody Booking booking){
-        return ResponseEntity.ok(bookingService.update(id, booking.getClient(), booking.getStart(), booking.getTable()));
+    @PostMapping(path = "book")
+    public ResponseEntity<Booking> update(@RequestBody Booking booking){
+        return ResponseEntity.ok(bookingService.update(booking.getClient(), booking.getDate(), booking.getTime(), booking.getTable()));
     }
 }

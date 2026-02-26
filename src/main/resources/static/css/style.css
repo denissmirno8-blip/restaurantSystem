@@ -1,3 +1,8 @@
-body{
+body {
     background-color: #fff;
+}
+
+table {
+    border: 5px solid black;
+    border-collapse: collapse;
 }

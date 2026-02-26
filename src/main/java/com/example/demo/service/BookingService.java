@@ -5,6 +5,7 @@ import com.example.demo.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -26,30 +27,27 @@ public class BookingService {
         return bookingRepository.save(booking);
     }
 
-    public void delete(Long id) {
-        Optional<Booking> optionalBooking = bookingRepository.findById(id);
-        if(optionalBooking.isEmpty())
-            throw new ResourceNotFoundException("Booking with id: " + id + " doesn't exist.");
-        
-        bookingRepository.deleteById(id);
-    }
-
+    //Registration
     @Transactional
-    public Booking update(Long id, Client client, LocalDateTime start, RestaurantTable restaurantTable) {
-        Optional<Booking> optionalBooking = bookingRepository.findById(id);
+    public Booking update(Client client, String date, String time, RestaurantTable restaurantTable) {
+        Optional<Booking> optionalBooking = bookingRepository.findByDateAndTimeAndRestaurantTable(date, time, restaurantTable);
         if(optionalBooking.isEmpty())
-            throw new ResourceNotFoundException("Booking with id: " + id + " doesn't exist.");
+            throw new ResourceNotFoundException("Booking with " + date + "  " + time + " and table nr " + restaurantTable.getId() + " doesn't exist.");
 
         Booking booking = optionalBooking.get();
-        if(client != null && !booking.getClient().equals(client))
-            booking.setClient(client);
-
-        if(restaurantTable != null && !booking.getTable().equals(restaurantTable))
-            booking.setTable(restaurantTable);
-
-        if(start != null && !booking.getStart().equals(start))
-            booking.setStart(start);
+        booking.setClient(client);
 
         return booking;
+    }
+
+    public List<String> findTime() {
+        return bookingRepository.findDistinctTimes();
+    }
+
+    public List<Long> findTablesForBooking(String date, String time, Integer size,String area, List<String> preferences) {
+        if(preferences == null){
+            return bookingRepository.findFreeTablesForBooking(date, time, size, area);
+        }
+        return bookingRepository.findFreeTablesForBookingWithPreferences(date, time, size, area, preferences);
     }
 }
