@@ -34,9 +34,14 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.findTablesForBooking(date, time, size, area, preferences));
     }*/
     @GetMapping(path = "/map")
-    public String getTablesForBooking(@RequestParam String date, @RequestParam String time, @RequestParam Integer size, @RequestParam(required = false) String area, @RequestParam(required = false) List<String> preferences) {
+    public String getMap() {
 
         return "map";
+    }
+    @GetMapping(path = "/avaiable_tables")
+    @ResponseBody
+    public ResponseEntity<List<Booking>> getTablesForBooking(@RequestParam String date, @RequestParam String time, @RequestParam Integer size, String area, @RequestParam(required = false) List<String> preferences) {
+        return ResponseEntity.ok(bookingService.findTablesForBooking(date, time, size, area,preferences));
     }
 
 

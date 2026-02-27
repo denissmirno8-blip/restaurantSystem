@@ -26,7 +26,7 @@ const addTimes = async () => {
 
     for (let i = 0; i < timesData.length; i++) {
         option = document.createElement("option");
-        option.value = i;
+        option.value = timesData[i];
         option.textContent = timesData[i];
         timeSelect.append(option);
     }
@@ -59,34 +59,38 @@ const addPreferences = async () => {
     }
 }
 
-const addTables = async () => {
+const createTablesMap = async () => {
     //Put tables and after filters setting change it to select distinct restauranttable from booking where ...
     const grid = document.querySelector(".restaurant-grid");
-    if(!grid) return;
+    if (!grid) return;
 
-    const response = await fetch("http://localhost:8080/api/tables");
-    const tableData = await response.json();
-
+    const urlParams = new URLSearchParams(window.location.search);
 
 
-    for (const table of tableData) {
+    const response = await fetch("http://localhost:8080/api/booking/avaiable_tables?" + urlParams);
+    const bookingData = await response.json();
+
+    console.log(bookingData);
+
+
+    for (const booking of bookingData) {
         const input = document.createElement("input");
         input.type = "checkbox";
         input.name = "tableId";
-        input.id = table.id;
+        input.id = booking.table.id;
         input.classList.add("table-checkbox");
         grid.append(input);
 
         const label = document.createElement("label");
-        label.htmlFor = table.id;
-        label.textContent = "Laud " + table.id;
+        label.htmlFor = booking.table.id;
+        label.textContent = "Laud " + booking.table.id;
         grid.append(label);
     }
 }
 
 addAreas();
 addPreferences();
-addTables();
+createTablesMap();
 addTimes();
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -96,12 +100,15 @@ document.addEventListener("DOMContentLoaded", () => {
         filterForm.addEventListener("submit", (event) => {
             const dateValue = document.getElementById("date").value;
             const timeSelect = document.getElementById("time");
+            const areaSelect = document.getElementById("area_select");
             const sizeValue = document.getElementById("table_size").value;
 
+
             const timeValue = timeSelect.options[timeSelect.selectedIndex]?.textContent;
+            const areaValue = areaSelect.options[areaSelect.selectedIndex]?.textContent;
 
             if (!dateValue || !timeValue || !sizeValue || !areaValue) {
-                alert("Palun valige kuupäeva, aega ja suuruse.")
+                alert("Palun valige kuupäeva, aega, suuruse ja tsooni.")
 
                 event.preventDefault();
             }
