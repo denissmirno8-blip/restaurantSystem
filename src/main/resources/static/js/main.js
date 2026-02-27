@@ -49,6 +49,8 @@ const addPreferences = async () => {
         const input = document.createElement("input");
         input.type = "checkbox";
         input.id = preference.id;
+        input.value = preference.id;
+        input.name = "preferences";
         input.classList.add("filter");
         choice.append(input);
 
@@ -60,7 +62,6 @@ const addPreferences = async () => {
 }
 
 const createTablesMap = async () => {
-    //Put tables and after filters setting change it to select distinct restauranttable from booking where ...
     const grid = document.querySelector(".restaurant-grid");
     if (!grid) return;
 
@@ -74,6 +75,8 @@ const createTablesMap = async () => {
 
 
     for (const booking of bookingData) {
+        console.log(booking.table.preferences)
+
         const input = document.createElement("input");
         input.type = "checkbox";
         input.name = "tableId";

@@ -40,7 +40,7 @@ public class BookingController {
     }
     @GetMapping(path = "/avaiable_tables")
     @ResponseBody
-    public ResponseEntity<List<Booking>> getTablesForBooking(@RequestParam String date, @RequestParam String time, @RequestParam Integer size, String area, @RequestParam(required = false) List<String> preferences) {
+    public ResponseEntity<List<Booking>> getTablesForBooking(@RequestParam String date, @RequestParam String time, @RequestParam Integer size, @RequestParam Long area, @RequestParam(required = false) List<Long> preferences) {
         return ResponseEntity.ok(bookingService.findTablesForBooking(date, time, size, area,preferences));
     }
 
