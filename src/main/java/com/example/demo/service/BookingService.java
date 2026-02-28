@@ -44,10 +44,8 @@ public class BookingService {
         return bookingRepository.findDistinctTimes();
     }
 
-    public List<Booking> findTablesForBooking(String date, String time, Integer size,Long area, List<Long> preferences) {
-        if(preferences == null){
-            return bookingRepository.findFreeTablesForBooking(date, time, size, area);
-        }
-        return bookingRepository.findFreeTablesForBookingWithPreferences(date, time, size, area, preferences);
+    public List<Booking> findTablesForBooking(String date, String time) {
+
+        return bookingRepository.findFreeTablesForBookingByDateAndTime(date, time);
     }
 }
