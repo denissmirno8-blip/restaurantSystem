@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.repository.Area;
 import com.example.demo.repository.Booking;
+import com.example.demo.repository.Client;
 import com.example.demo.repository.RestaurantTable;
 import com.example.demo.service.BookingService;
 import jakarta.validation.Valid;
@@ -28,11 +29,7 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.findAll());
     }
 
-    /*@GetMapping(path = "/map")
-    public ResponseEntity<List<Long>> getTablesForBooking(@RequestParam String date, @RequestParam String time, @RequestParam Integer size, @RequestParam String area, @RequestParam(required = false) List<String> preferences) {
 
-        return ResponseEntity.ok(bookingService.findTablesForBooking(date, time, size, area, preferences));
-    }*/
     @GetMapping(path = "/map")
     public String getMap() {
 
@@ -66,8 +63,9 @@ public class BookingController {
         return ResponseEntity.status(HttpStatus.CREATED).body("All bookings are created.");
     }
 
-    @PostMapping(path = "book")
+    @PostMapping(path = "book", consumes = "application/json")
     public ResponseEntity<Booking> update(@RequestBody Booking booking){
+
         return ResponseEntity.ok(bookingService.update(booking.getClient(), booking.getDate(), booking.getTime(), booking.getTable()));
     }
 }

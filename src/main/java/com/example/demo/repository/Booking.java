@@ -17,7 +17,7 @@ public class Booking {
     @JoinColumn(name = "table_id")
     @NotNull(message = "Table name is mandatory.")
     private RestaurantTable restaurantTable;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "client_id")
     private Client client;
     @NotNull(message = "date is mandatory;")
@@ -51,6 +51,8 @@ public class Booking {
 
     public void setClient(Client client) {
         this.client = client;
+
+        this.tableIsFree = (client == null);
     }
 
     public RestaurantTable getTable() {

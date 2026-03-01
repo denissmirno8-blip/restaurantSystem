@@ -14,9 +14,11 @@ import java.util.Optional;
 public class BookingService {
 
     private final BookingRepository bookingRepository;
+    private final ClientRepository clientRepository;
 
-    public BookingService(BookingRepository bookingRepository) {
+    public BookingService(BookingRepository bookingRepository, ClientRepository clientRepository) {
         this.bookingRepository = bookingRepository;
+        this.clientRepository = clientRepository;
     }
 
     public List<Booking> findAll() {
@@ -34,8 +36,9 @@ public class BookingService {
         if(optionalBooking.isEmpty())
             throw new ResourceNotFoundException("Booking with " + date + "  " + time + " and table nr " + restaurantTable.getId() + " doesn't exist.");
 
+        Client existingClient = clientRepository.findByPhoneNumber(client.getPhoneNumber()).orElse(client);
         Booking booking = optionalBooking.get();
-        booking.setClient(client);
+        booking.setClient(existingClient);
 
         return booking;
     }

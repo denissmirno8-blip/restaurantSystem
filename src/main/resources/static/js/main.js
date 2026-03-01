@@ -1,3 +1,4 @@
+let globalTableScores = [];
 
 const addAreas = async () => {
     const areaSelect = document.querySelector("#area_select");
@@ -6,6 +7,11 @@ const addAreas = async () => {
     const response = await fetch("http://localhost:8080/api/areas")
 
     const areasData = await response.json();
+
+    noneOption = document.createElement("option");
+    noneOption.value = "none";
+    noneOption.textContent = "-None-";
+    areaSelect.append(noneOption);
 
     for (const area of areasData) {
         option = document.createElement("option");
@@ -62,6 +68,68 @@ const addPreferences = async () => {
 }
 
 
+const paintTables = (tableScores) => {
+    const validScores = tableScores.filter(item => item.currentScore > -900).map(item => item.currentScore);
+
+    const maximumScore = validScores.length > 0 ? Math.max(...validScores) : 0;
+    const minimumScore = validScores.length > 0 ? Math.min(...validScores) : 0;
+    const scoreRange = maximumScore - minimumScore;
+
+    tableScores.forEach(item => {
+        const tableInput = document.querySelector(`#table${item.id}`);
+        const tableLabel = document.querySelector(`.tableNr[for="table${item.id}"]`)
+
+        if (item.currentScore < -900) {
+            tableLabel.style.backgroundColor = "#ff4d4d";
+            tableLabel.style.color = "white";
+        }
+        else {
+            const normalized = scoreRange === 0 ? 1 : (item.currentScore - minimumScore) / scoreRange;
+
+            const hue = 30 + (normalized * 90);
+
+            tableLabel.style.backgroundColor = `hsl(${hue}, 80%, 55%)`;
+            tableLabel.style.color = "black";
+        }
+
+
+
+    })
+}
+
+
+//Count table scores
+const updateScore = (tableScores) => {
+    const selectedArea = document.getElementById("area_select")?.value;
+    const urlParams = new URLSearchParams(window.location.search);
+    const requestedSize = Number(urlParams.get('size'));
+
+    const selectedPreferences = Array.from(document.querySelectorAll('fieldset input[type="checkbox"]:checked')).map(el => el.value);
+
+    tableScores.forEach(item => {
+        let score = 0;
+
+        const sizeDiff = item.baseSize - requestedSize;
+        if (sizeDiff < 0)
+            score -= 1000;
+        else
+            score -= sizeDiff * 2;
+
+        if (selectedArea && selectedArea === item.areaName)
+            score += 10;
+
+        const matches = selectedPreferences.filter(preference => item.preferences.some(p => String(p.preference) === preference));
+
+        score += (matches.length * 5);
+
+        item.currentScore = score;
+
+    });
+
+    paintTables(tableScores);
+
+}
+
 const createTablesMap = async () => {
     const grid = document.querySelector(".restaurant-grid");
     if (!grid) return;
@@ -80,10 +148,11 @@ const createTablesMap = async () => {
 
 
         const input = document.createElement("input");
-        input.type = "checkbox";
+        input.type = "radio";
         input.name = "tableId";
         input.id = "table" + booking.table.id;
         input.classList.add("table-checkbox");
+        input.dataset.id = booking.table.id;
         grid.append(input);
 
         const label = document.createElement("label");
@@ -95,57 +164,28 @@ const createTablesMap = async () => {
     }
 
     //need to add clients registation check if true -1000
-    let tableScores = bookingData.map(booking => ({
+    globalTableScores = bookingData.map(booking => ({
         id: String(booking.table.id),
         baseSize: booking.table.size,
         areaName: booking.table.area?.name,
         preferences: booking.table.preferences || [],
+        isFree: booking.tableFree,
         currentScore: 0
     }));
 
+    updateScore(globalTableScores);
 
-    //Count table scores
-    const updateScore = () => {
-        const selectedArea = document.getElementById("area_select")?.value;
-        const urlParams = new URLSearchParams(window.location.search);
-        const requestedSize = Number(urlParams.get('size'));
-
-        const selectedPreferences = Array.from(document.querySelectorAll('fieldset input[type="checkbox"]:checked')).map(el => el.value);
-
-        tableScores.forEach(item => {
-            let score = 0;
-
-            const sizeDiff = item.baseSize - requestedSize;
-            if (sizeDiff < 0)
-                score -= 1000;
-            else
-                score -= sizeDiff * 2;
-
-            if (selectedArea && selectedArea === item.areaName)
-                score += 10;
-
-            const matches = selectedPreferences.filter(preference => item.preferences.some(p => String(p.preference) === preference));
-
-            score += (matches.length * 5);
-
-            item.currentScore = score;
-
-        });
-
-        console.log(tableScores)
-
-    }
 
     const areaSelect = document.getElementById("area_select");
 
     if (areaSelect) {
-        areaSelect.addEventListener("change", updateScore);
+        areaSelect.addEventListener("change", () => updateScore(globalTableScores));
     }
 
     const preferenceSelect = document.querySelector(".preferences");
 
     if (preferenceSelect)
-        preferenceSelect.addEventListener("change", updateScore);
+        preferenceSelect.addEventListener("change", () => updateScore(globalTableScores));
 
 }
 
@@ -156,6 +196,8 @@ addTimes();
 
 document.addEventListener("DOMContentLoaded", () => {
     const filterForm = document.querySelector('form[action="/api/booking/map"]');
+
+    const registerForm = document.querySelector('form[action="/api/booking/book"]')
 
     if (filterForm) {
         filterForm.addEventListener("submit", (event) => {
@@ -178,6 +220,65 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert("Laua ei saa broneerida minevikku!.")
                 event.preventDefault();
             }
+        })
+    }
+    if (registerForm) {
+        registerForm.addEventListener("submit", async (event) => {
+
+            event.preventDefault();
+
+            const selectedTable = document.querySelector('input[name="tableId"]:checked');
+            const selectedTableId = Number(selectedTable.dataset.id);
+            const tableScoreInfo = globalTableScores.find(item => Number(item.id) === selectedTableId);
+
+
+            if (!selectedTable) {
+                alert("Palun valige laud!");
+                return;
+            }
+            if (tableScoreInfo.currentScore < -900) {
+                alert("Laud on liiga väike. Proovige uuseti.")
+                return;
+            }
+            else if (!tableScoreInfo.isFree) {
+                alert("Laud on broneeritud. Proovige uuesti.")
+                return;
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+
+            const tableResponse = await fetch("http://localhost:8080/api/tables");
+            const tableData = await tableResponse.json();
+
+            const tableInfo = tableData.find(item => item.id === selectedTableId);
+
+
+            const newBook = {
+                restaurantTable: tableInfo,
+                client: {
+                    name: document.querySelector("#clientName").value.trim(),
+                    phoneNumber: document.querySelector("#phonenumber").value.trim()
+                },
+                date: urlParams.get('date'),
+                time: urlParams.get('time')
+            }
+
+            console.log(newBook);
+
+
+            const response = await fetch('http://localhost:8080/api/booking/book', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newBook)
+            });
+
+            if (response.ok) {
+                alert(`Broneering õnnestus!`);
+                window.location.href = "/"
+            } else {
+                alert("Viga broneerimisel. Proovige uuesti!");
+            }
+
         })
     }
 })
