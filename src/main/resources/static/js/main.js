@@ -76,7 +76,6 @@ const paintTables = (tableScores) => {
     const scoreRange = maximumScore - minimumScore;
 
     tableScores.forEach(item => {
-        const tableInput = document.querySelector(`#table${item.id}`);
         const tableLabel = document.querySelector(`.tableNr[for="table${item.id}"]`)
 
         if (item.currentScore < -900) {
@@ -91,14 +90,11 @@ const paintTables = (tableScores) => {
             tableLabel.style.backgroundColor = `hsl(${hue}, 80%, 55%)`;
             tableLabel.style.color = "black";
         }
-
-
-
     })
 }
 
 
-//Count table scores
+//Count table scores by size, area and preference
 const updateScore = (tableScores) => {
     const selectedArea = document.getElementById("area_select")?.value;
     const urlParams = new URLSearchParams(window.location.search);
@@ -130,7 +126,7 @@ const updateScore = (tableScores) => {
 
 }
 
-const createTablesMap = async () => {
+const createTablesByData = async () => {
     const grid = document.querySelector(".restaurant-grid");
     if (!grid) return;
 
@@ -141,12 +137,8 @@ const createTablesMap = async () => {
 
     console.log(bookingData);
 
-
-
     //add the table points logic(table_size - people_count)
     for (const booking of bookingData) {
-
-
         const input = document.createElement("input");
         input.type = "radio";
         input.name = "tableId";
@@ -160,7 +152,6 @@ const createTablesMap = async () => {
         label.htmlFor = "table" + booking.table.id;
         label.textContent = "Laud " + booking.table.id;
         grid.append(label);
-
     }
 
     //need to add clients registation check if true -1000
@@ -169,7 +160,6 @@ const createTablesMap = async () => {
         baseSize: booking.table.size,
         areaName: booking.table.area?.name,
         preferences: booking.table.preferences || [],
-        isFree: booking.tableFree,
         currentScore: 0
     }));
 
@@ -189,9 +179,10 @@ const createTablesMap = async () => {
 
 }
 
+//Fill the filters
 addAreas();
 addPreferences();
-createTablesMap();
+createTablesByData();
 addTimes();
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -205,10 +196,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const timeValue = document.getElementById("time").value;
             const sizeValue = document.getElementById("table_size").value;
 
-
             if (!dateValue || !timeValue || !sizeValue) {
                 alert("Palun valige kuupäeva, aega, suuruse.")
-
                 event.preventDefault();
             }
 
@@ -216,7 +205,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const now = new Date();
 
             if (selectedDateAndTime < now) {
-
                 alert("Laua ei saa broneerida minevikku!.")
                 event.preventDefault();
             }
@@ -225,12 +213,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (registerForm) {
         registerForm.addEventListener("submit", async (event) => {
 
-            event.preventDefault();
+            event.preventDefault();//prevent the page reloading
 
             const selectedTable = document.querySelector('input[name="tableId"]:checked');
             const selectedTableId = Number(selectedTable.dataset.id);
             const tableScoreInfo = globalTableScores.find(item => Number(item.id) === selectedTableId);
-
 
             if (!selectedTable) {
                 alert("Palun valige laud!");
@@ -238,10 +225,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             if (tableScoreInfo.currentScore < -900) {
                 alert("Laud on liiga väike. Proovige uuseti.")
-                return;
-            }
-            else if (!tableScoreInfo.isFree) {
-                alert("Laud on broneeritud. Proovige uuesti.")
                 return;
             }
 
@@ -252,7 +235,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const tableInfo = tableData.find(item => item.id === selectedTableId);
 
-
             const newBook = {
                 restaurantTable: tableInfo,
                 client: {
@@ -262,9 +244,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 date: urlParams.get('date'),
                 time: urlParams.get('time')
             }
-
-            console.log(newBook);
-
 
             const response = await fetch('http://localhost:8080/api/booking/book', {
                 method: 'POST',
