@@ -11,31 +11,35 @@
 
 <body>
 
-<div class="conteiner registration">
+<div class="container2">
     <h2>Vali laua</h2>
     <label for="area_select">Tsoon</label>
     <br>
-    <select name="area" id="area_select" class="filter">
+    <select name="area" id="area_select" class="area">
     </select>
     <br>
     <fieldset name="preference" class="preferences">
-        <legend>Eelistus</legend>
+        <legend>Eelistused</legend>
     </fieldset>
     <br>
     <form action="/api/booking/book" method="POST">
+        <label for="restaurant-grid">Vabad lauad</label>
         <div class="restaurant-grid">
-
         </div>
         <br>
-        <label for="clientName">Ees- ja perekonnanimi</label>
-        <br>
-        <input type="text" id="clientName" class="registration" required placeholder="Sisestage nimi">
-        <br>
-        <label for="phonenumber">Telefoni number</label>
-        <br>
-        <input type="text" id="phonenumber" class="registration" required placeholder="Sisestage telefoni numbri">
-        <br>
-        <button type="submit">Registreeri</button>
+        <div class="registration">
+            <h3>Registreering</h3>
+            <br>
+            <label for="clientName">Ees- ja perekonnanimi</label>
+            <br>
+            <input type="text" id="clientName" required placeholder="Sisestage nimi">
+            <br>
+            <label for="phonenumber">Telefoni number</label>
+            <br>
+            <input type="text" id="phonenumber" required placeholder="Sisestage telefoni numbri">
+            <br>
+            <button type="submit">Registreeri</button>
+        </div>
     </form>
 </div>
 </body>

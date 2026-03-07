@@ -78,8 +78,8 @@ const paintTables = (tableScores) => {
     tableScores.forEach(item => {
         const tableLabel = document.querySelector(`.tableNr[for="table${item.id}"]`)
 
-        if (item.currentScore < -900) {
-            tableLabel.style.backgroundColor = "#ff4d4d";
+        if (tableLabel.classList.contains("chosen")) {
+            tableLabel.style.backgroundColor = "#2563eb";
             tableLabel.style.color = "white";
         }
         else {
@@ -139,19 +139,22 @@ const createTablesByData = async () => {
 
     //add the table points logic(table_size - people_count)
     for (const booking of bookingData) {
+        const divide = document.createElement("div");
+        divide.classList.add("table-checkbox")
         const input = document.createElement("input");
         input.type = "radio";
         input.name = "tableId";
         input.id = "table" + booking.table.id;
-        input.classList.add("table-checkbox");
         input.dataset.id = booking.table.id;
-        grid.append(input);
+        divide.append(input);
 
         const label = document.createElement("label");
         label.classList.add("tableNr")
         label.htmlFor = "table" + booking.table.id;
         label.textContent = "Laud " + booking.table.id;
-        grid.append(label);
+        divide.append(label);
+
+        grid.append(divide);
     }
 
     //need to add clients registation check if true -1000
@@ -189,6 +192,43 @@ document.addEventListener("DOMContentLoaded", () => {
     const filterForm = document.querySelector('form[action="/api/booking/map"]');
 
     const registerForm = document.querySelector('form[action="/api/booking/book"]')
+
+    const grid = document.querySelector('.restaurant-grid');
+
+    if (grid) {
+        grid.addEventListener("click", (event) => {
+
+            const target = event.target.closest(".table-checkbox");
+
+            if (target) {
+                const label = target.querySelector(".tableNr");
+                const input = target.querySelector("input[type='radio']");
+
+                document.querySelectorAll(".tableNr").forEach(el => el.classList.remove("chosen"));
+
+                label.classList.add("chosen");
+
+                input.checked = true;
+
+                paintTables(globalTableScores)
+            }
+        })
+
+        grid.addEventListener("mouseenter", async (event) => {
+            const target = event.target.closest(".table-checkbox");
+            if (target) {
+
+                const tableResponse = await fetch("http://localhost:8080/api/tables");
+                const tableData = await tableResponse.json();
+                const selectedInput = target.querySelector('input[type="radio"]');
+                const selectedTableId = Number(selectedInput.dataset.id);
+                const tableInfo = tableData.find(item => item.id === selectedTableId);
+                const prefString = tableInfo.preferences ? tableInfo.preferences.map(p => p.preference).join(", ") : "puuduvad";
+                target.title = `Laua suurus: ${tableInfo.size}.\nLaua asukoht : ${tableInfo.area.name}.\nLaua eelistused: ${prefString}.`;
+
+            }
+        }, true)
+    }
 
     if (filterForm) {
         filterForm.addEventListener("submit", (event) => {
