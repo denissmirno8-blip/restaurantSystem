@@ -85,6 +85,7 @@ const paintTables = (tableScores) => {
         else {
             const normalized = scoreRange === 0 ? 1 : (item.currentScore - minimumScore) / scoreRange;
 
+            //AI soovitas
             const hue = 30 + (normalized * 90);
 
             tableLabel.style.backgroundColor = `hsl(${hue}, 80%, 55%)`;
